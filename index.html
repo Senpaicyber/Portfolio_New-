@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ── SECURITY HEADERS (served via meta where server headers aren't available) ── -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <!-- CSP: adjust if you add third-party scripts -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'self';">
+
+  <title>David Budha Magar — Security Portfolio</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- CRT scanlines -->
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- Matrix rain -->
+<canvas id="matrix-canvas" aria-hidden="true"></canvas>
+
+<!-- Cursor -->
+<div id="cursor"      aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+
+<!-- ── Section nav dots ──────────────────────────────────────── -->
+<nav id="nav-dots" aria-label="Page sections">
+  <div class="dot active" data-label="Home"       onclick="goTo('main-hero')"></div>
+  <div class="dot"        data-label="About"      onclick="goTo('about')"></div>
+  <div class="dot"        data-label="Certs"      onclick="goTo('certs')"></div>
+  <div class="dot"        data-label="Projects"   onclick="goTo('portfolio')"></div>
+  <div class="dot"        data-label="Experience" onclick="goTo('experience')"></div>
+  <div class="dot"        data-label="Education"  onclick="goTo('education')"></div>
+  <div class="dot"        data-label="Contact"    onclick="goTo('contact')"></div>
+</nav>
+
+<!-- ── Floating action buttons ────────────────────────────────── -->
+<div id="fab-group">
+  <a id="fab-email" href="mailto:davidbudha17@gmail.com" class="fab">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+    </svg>
+    Send email
+  </a>
+  <a id="fab-cv" href="assets/David_Budha_Magar_CV.pdf" class="fab cv-link" download>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+    </svg>
+    Download CV
+  </a>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     SPLASH SCREEN
+════════════════════════════════════════════ -->
+<div id="splash" role="status" aria-label="Loading portfolio">
+
+  <div class="splash-corner tl" aria-hidden="true"></div>
+  <div class="splash-corner tr" aria-hidden="true"></div>
+  <div class="splash-corner bl" aria-hidden="true"></div>
+  <div class="splash-corner br" aria-hidden="true"></div>
+
+  <div class="splash-boot" aria-hidden="true">
+    <span>Initialising secure connection...</span>
+    <span>Verifying identity...</span>
+    <span>Access granted.</span>
+  </div>
+
+  <div id="splash-welcome" aria-live="polite">
+    <p style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:14px;letter-spacing:0.06em;">
+      <span style="color:var(--green2)">root@sec</span><span style="color:var(--text3)">:~$</span>
+      <span id="term-prompt" data-text=" ./portfolio.sh"></span>
+    </p>
+    <h1 class="welcome-main" id="welcome-word" data-text="WELCOME">
+      WELCOME<span class="welcome-period">.</span>
+    </h1>
+    <p class="welcome-sub" id="hero-sub">Security Portfolio · 2026</p>
+  </div>
+
+  <!-- FIX: class was "splash-bar" in HTML but "splash-status" in CSS — unified to splash-status -->
+  <div class="splash-status" aria-hidden="true">
+    <span>Loading</span>
+    <div class="status-bar-track">
+      <div class="status-bar-fill" id="bar-fill"></div>
+    </div>
+    <!-- FIX: pct element was missing — counter now updates this -->
+    <span id="pct">0%</span>
+  </div>
+
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     MAIN HERO  (photo + name)
+     FIX: hero is now height:100vh with position:relative
+          hero-inner is position:absolute centred with translate(-50%,-50%)
+════════════════════════════════════════════ -->
+<section id="main-hero">
+
+  <div class="hero-grid" aria-hidden="true"></div>
+
+  <div class="hbracket tl" aria-hidden="true"></div>
+  <div class="hbracket tr" aria-hidden="true"></div>
+  <div class="hbracket bl" aria-hidden="true"></div>
+  <div class="hbracket br" aria-hidden="true"></div>
+
+  <div class="hero-statusbar" aria-hidden="true">
+    <span class="pulse-dot"></span>
+    System online &nbsp;·&nbsp; All connections encrypted
+  </div>
+
+  <!-- Absolutely centred content block -->
+  <div class="hero-inner">
+
+    <div class="photo-frame">
+      <div class="frame-corner tl" aria-hidden="true"></div>
+      <div class="frame-corner tr" aria-hidden="true"></div>
+      <div class="frame-corner bl" aria-hidden="true"></div>
+      <div class="frame-corner br" aria-hidden="true"></div>
+
+      <div class="photo-box">
+        <div class="scan-sweep" aria-hidden="true"></div>
+        <!-- Photo replaced by JS from CONFIG.photoSrc -->
+        <div id="photo-inner">
+          <div class="photo-placeholder">
+            <svg class="photo-silhouette" viewBox="0 0 200 360" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <ellipse cx="100" cy="72" rx="46" ry="52" fill="rgba(0,255,65,0.2)"/>
+              <path d="M16 360 Q16 220 100 198 Q184 220 184 360Z" fill="rgba(0,255,65,0.15)"/>
+            </svg>
+          </div>
+        </div>
+        <span class="hud-tag tl" aria-hidden="true">ID:DBM-001</span>
+        <span class="hud-tag tr" aria-hidden="true">SCANNING</span>
+        <span class="hud-tag bl" aria-hidden="true">SEC:CLASS-A</span>
+        <span class="hud-tag br" aria-hidden="true">AUTH:OK</span>
+      </div>
+    </div>
+
+    <div class="hero-name-block">
+      <div class="hero-name" id="name-letters" aria-label="David Budha Magar"></div>
+      <p class="hero-tagline" id="hero-tagline"></p>
+      <div class="available-badge" id="avail-badge" aria-label="Availability status">
+        <span class="blink-dot" aria-hidden="true"></span>
+        Available for engagements
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     ABOUT
+════════════════════════════════════════════ -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div>
+        <div class="eyebrow anim">About me</div>
+        <h2 class="sec-title anim d1">Who I <em>Am</em></h2>
+        <p class="about-bio anim d2" id="about-bio1"></p>
+        <p class="about-bio anim d3" id="about-bio2"></p>
+        <div class="anim d3">
+          <div class="skills-label">// Core skills</div>
+          <div class="skill-tags" id="skill-tags"></div>
+        </div>
+      </div>
+      <div class="anim d2">
+        <div class="about-card">
+          <div class="stat-row" id="stats-container"></div>
+          <div class="certs-label">// Certifications</div>
+          <div class="cert-list" id="certs-list"></div>
+          <ul class="interests-list" id="interests-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="h-rule">
+
+
+<!-- ════════════════════════════════════════════
+     CERTIFICATIONS  (full detail section)
+════════════════════════════════════════════ -->
+<section id="certs">
+  <div class="section-inner">
+    <div class="eyebrow anim">Credentials</div>
+    <h2 class="sec-title anim d1">Certifi<em>cations</em></h2>
+    <div class="cert-cards" id="cert-cards"></div>
+  </div>
+</section>
+
+<hr class="h-rule">
+
+
+<!-- ════════════════════════════════════════════
+     PORTFOLIO
+════════════════════════════════════════════ -->
+<section id="portfolio">
+  <div class="section-inner">
+    <div class="eyebrow anim">Projects</div>
+    <h2 class="sec-title anim d1">Academic &amp; <em>Personal Work</em></h2>
+    <div class="portfolio-grid" id="portfolio-grid"></div>
+  </div>
+</section>
+
+<hr class="h-rule">
+
+
+<!-- ════════════════════════════════════════════
+     EXPERIENCE
+════════════════════════════════════════════ -->
+<section id="experience">
+  <div class="section-inner">
+    <div class="eyebrow anim">Experience</div>
+    <h2 class="sec-title anim d1">Where I've <em>Worked</em></h2>
+    <div class="timeline" id="timeline">
+      <div class="timeline-track">
+        <div class="timeline-fill" id="timeline-fill"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="h-rule">
+
+
+<!-- ════════════════════════════════════════════
+     EDUCATION
+════════════════════════════════════════════ -->
+<section id="education">
+  <div class="section-inner">
+    <div class="eyebrow anim">Education</div>
+    <h2 class="sec-title anim d1">Academic <em>Background</em></h2>
+    <div class="edu-list" id="edu-list"></div>
+  </div>
+</section>
+
+<hr class="h-rule">
+
+
+<!-- ════════════════════════════════════════════
+     CONTACT
+════════════════════════════════════════════ -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-grid">
+
+      <div>
+        <div class="eyebrow anim">Contact</div>
+        <h2 class="sec-title anim d1">Get in <em>Touch</em></h2>
+
+        <div class="anim d2">
+          <!-- Replace action="#" with your Formspree URL to actually receive emails -->
+          <form id="contact-form" action="#" method="POST" novalidate>
+
+            <!-- Honeypot field — bots fill it, humans don't (hidden via CSS) -->
+            <div class="hp-field" aria-hidden="true">
+              <label for="hp-name">Leave this empty</label>
+              <input type="text" id="hp-name" name="_hp" tabindex="-1" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="f-name">Name</label>
+              <input class="form-input" type="text" id="f-name" name="name"
+                     placeholder="Your full name" required
+                     maxlength="100" autocomplete="name" spellcheck="false">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="f-email">Email</label>
+              <input class="form-input" type="email" id="f-email" name="email"
+                     placeholder="your@email.com" required
+                     maxlength="254" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="f-msg">Message</label>
+              <textarea class="form-textarea" id="f-msg" name="message"
+                        placeholder="Describe your project or enquiry…"
+                        required maxlength="2000"></textarea>
+            </div>
+
+            <button class="submit-btn" type="submit">
+              Transmit message
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </form>
+
+          <div class="form-success" id="form-success" role="status">
+            <div class="form-success-icon">[ MESSAGE RECEIVED ]</div>
+            <p>Transmission successful. I'll respond within 24 hours.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="anim d3">
+        <div style="margin-top:68px">
+
+          <div class="info-block">
+            <div class="info-label">Email</div>
+            <a href="mailto:davidbudha17@gmail.com" class="contact-link contact-email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              davidbudha17@gmail.com
+            </a>
+          </div>
+
+          <div class="info-block">
+            <div class="info-label">Phone</div>
+            <span class="contact-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.2 2 2 0 012.22 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+              +977 9847825017
+            </span>
+          </div>
+
+          <div class="info-block">
+            <div class="info-label">Social &amp; profiles</div>
+            <div class="social-row">
+              <a href="https://www.linkedin.com/in/david-budha-magar-2a601b26a"
+                 class="social-link social-linkedin" aria-label="LinkedIn"
+                 target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                  <circle cx="4" cy="4" r="2"/>
+                </svg>
+              </a>
+              <a href="https://github.com/Senpaicyber"
+                 class="social-link social-github" aria-label="GitHub"
+                 target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <a href="assets/David_Budha_Magar_CV.pdf" class="dl-cv cv-link" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Download CV — PDF
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<footer>
+  <div class="footer-name" id="footer-name">David Budha Magar</div>
+  <div class="footer-copy">&copy; <span id="footer-year">2026</span> — All rights reserved</div>
+</footer>
+
+
+<!-- Scripts: config MUST load before main -->
+<script src="js/config.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
