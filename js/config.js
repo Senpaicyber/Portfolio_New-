@@ -42,7 +42,6 @@ const CONFIG = {
   aboutStats: [
     { num: "2+", label: "Years exp."     },
     { num: "5",  label: "Certifications" },
-    { num: "2",  label: "CVEs / Vulns"   },
   ],
 
   skills: [
@@ -76,7 +75,7 @@ const CONFIG = {
       num:"01", featured:true, badge:"Featured",
       name:"Signature-Based IDS",
       desc:"Real-time web-based IDS using Python, Flask, and Scapy. Integrated AbuseIPDB, AlienVault OTX, and MalwareBazaar APIs with automated IP blocking and email alerts.",
-      tags:["Python","Flask","Scapy","Threat Intel","IDS"], link:"#",
+      tags:["Python","Flask","Scapy","Threat Intel","IDS"], link:"https://github.com/Senpaicyber/IDS-IPS",
     },
     {
       num:"02", name:"SQL Injection Lab",
